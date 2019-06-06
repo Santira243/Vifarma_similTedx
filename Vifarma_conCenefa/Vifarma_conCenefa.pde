@@ -1,4 +1,4 @@
-/*
+/*p
 Robert Pinedo & Lali Barrière
 Master thesis: Interaction for creative applications with the Kinect v2 device
 Particle Cloud
@@ -10,7 +10,7 @@ import processing.video.*;
 import KinectPV2.*;
 KinectPV2 kinect;
 import processing.sound.*;
-PImage img; //starting image
+PImage img,img2; //starting image
 PVector[] start; //initial array of positions
 PVector[] end; //final array of positions
 float m = 0; //used later for a sin function (with lerp, for the motion of the particles)
@@ -33,6 +33,7 @@ float tiempo;
 int aplauso;
 int retardo;
 Movie mov;
+int tiempo_aplauso=0;
 
 void setup() 
 {
@@ -48,7 +49,7 @@ kinect.enableBodyTrackImg(true);
 kinect.enableHDFaceDetection(true);
 kinect.init();
 img = loadImage("1.jpg");
-
+img2 = loadImage("1.jpg");
 newImg= img.get(0, 0, img.width, img.height);
 newImg.resize(displayWidth, displayHeight);
 
@@ -64,12 +65,12 @@ rms = new Amplitude(this); // creates a new Amplitude analyzer
 rms.input(input); // Patches the input to an volume analyzer
 frameRate(30);
 
-mov = new Movie(this, "cenefa.mp4");  
-  
+//mov = new Movie(this, "cenefa.mp4");  
+//mov.volume(0);  
   // Pausing the video at the first frame. 
-  mov.play();
-  mov.jump(0);
-  mov.pause();
+  //mov.play();
+  //mov.jump(0);
+  //mov.pause();
   
 }
 
@@ -77,6 +78,9 @@ void draw()
 {
 retardo = millis();
 background(0);
+//image(mov, 0, 0, mov.width, mov.height);
+//mov.play();
+
 scale=int(map(rms.analyze(), 0, 0.5, 1, 424)); // rms.analyze() return a value between 0 and 1.
 if ((scale > 53)&& (!check))
     {
@@ -86,9 +90,12 @@ if ((scale > 53)&& (!check))
 if((check) && (millis()-tiempo)<4)
     {
       aplauso++;
-      println("aplauso:"+aplauso);
-      
-      println("difft:"+int(tiempo-millis()));
+     // println("aplauso:"+aplauso);
+      if(aplauso > 1)
+      {
+        tiempo_aplauso = millis();
+      }
+      //println("difft:"+int(tiempo-millis()));
     }
 if((check) && (millis()-tiempo)>1000)
 {
@@ -117,6 +124,10 @@ if (m>=1)
     img = kinect.getBodyTrackImage();
     } else if (aplauso == 2) {
     img = loadImage("2.jpg");
+    if((millis()-tiempo_aplauso)>2000)
+    {
+      aplauso = 0;
+    }
     }
     } else {
     img = loadImage("1.jpg");
@@ -148,17 +159,6 @@ if(prender_cara){
  cara();
 }
 
-  image(mov, 0, 0, mov.width, mov.height);
-  if(mov.time()> mov.duration()-1)
-  {
-    mov.speed(-1);
-  }
-  
-  if(mov.time()< 0.5)
-  {
-   mov.speed(1);
-  }
-  mov.play();
   //println(mov.time());
 }
 
@@ -311,4 +311,14 @@ background(0);
 
 void movieEvent(Movie m) {
   m.read();
+  
+  if(m.time()> m.duration()-1)
+  {
+    m.speed(-1);
+  }
+  
+  if(m.time()< 0.5)
+  {
+   m.speed(1);
+  }
 }
