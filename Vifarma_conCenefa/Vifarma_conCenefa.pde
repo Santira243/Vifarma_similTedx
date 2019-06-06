@@ -3,14 +3,14 @@ Robert Pinedo & Lali Barrière
 Master thesis: Interaction for creative applications with the Kinect v2 device
 Particle Cloud
 Based on Diana Lange's strategy in her sketch "imageTargets"
-*/
-import processing.video.*;
 
+*/
+import processing.sound.*;
 
 import KinectPV2.*;
 KinectPV2 kinect;
-import processing.sound.*;
-PImage img,img2; //starting image
+
+PImage img,img2,img2_bis; //starting image
 PVector[] start; //initial array of positions
 PVector[] end; //final array of positions
 float m = 0; //used later for a sin function (with lerp, for the motion of the particles)
@@ -32,7 +32,7 @@ boolean prender_cara;
 float tiempo;
 int aplauso;
 int retardo;
-Movie mov;
+int a=0;
 int tiempo_aplauso=0;
 
 void setup() 
@@ -49,7 +49,8 @@ kinect.enableBodyTrackImg(true);
 kinect.enableHDFaceDetection(true);
 kinect.init();
 img = loadImage("1.jpg");
-img2 = loadImage("1.jpg");
+img2 = loadImage("vifarmablanco.png");
+
 newImg= img.get(0, 0, img.width, img.height);
 newImg.resize(displayWidth, displayHeight);
 
@@ -65,21 +66,14 @@ rms = new Amplitude(this); // creates a new Amplitude analyzer
 rms.input(input); // Patches the input to an volume analyzer
 frameRate(30);
 
-//mov = new Movie(this, "cenefa.mp4");  
-//mov.volume(0);  
-  // Pausing the video at the first frame. 
-  //mov.play();
-  //mov.jump(0);
-  //mov.pause();
-  
+
 }
 
 void draw()
 {
 retardo = millis();
 background(0);
-//image(mov, 0, 0, mov.width, mov.height);
-//mov.play();
+
 
 scale=int(map(rms.analyze(), 0, 0.5, 1, 424)); // rms.analyze() return a value between 0 and 1.
 if ((scale > 53)&& (!check))
@@ -106,7 +100,16 @@ if((check) && (millis()-tiempo)>1000)
 //draw ellipses
 fill (random(180, 255), random(180, 255), random(180, 255)); //random colors?
 noStroke();
-
+ a--;
+ image(img2, a, 0);
+ image(img2, a+(img2.width+30), 0);
+ image(img2, a+2*(img2.width+30), 0);
+ image(img2, a+3*(img2.width+30), 0);
+ if( a == -img2.width+4)
+ {
+  a=0;
+ }
+ 
 for (int i = 0; i < start.length; i++)
     {
     PVector current = new PVector (lerp (start[i].x, end[i].x, m), lerp (start[i].y, end[i].y, m)); //m=0, lerp = point over the straight line given by 2 other points.
@@ -140,6 +143,7 @@ if (m>=1)
   arrayCopy (end, start);
   setNearestRandomPositions (end, end.length);
   }
+  
 if (toggle==true) {
 fill(0, 255, 0);
 rect(482, 10, 20, scale);
@@ -148,6 +152,7 @@ text("check =" + check, 20, 20);
 text("frame rate =" + int(frameRate), 20, 40);
 text("sound bar size = " + 1*scale, 20, 60);
 }
+
 if(aplauso == 1){
 prender_cara = true;
 }
@@ -308,17 +313,3 @@ background(0);
    aux --;
   }
 }  
-
-void movieEvent(Movie m) {
-  m.read();
-  
-  if(m.time()> m.duration()-1)
-  {
-    m.speed(-1);
-  }
-  
-  if(m.time()< 0.5)
-  {
-   m.speed(1);
-  }
-}
